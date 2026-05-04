@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #1c1e21;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .user-card:hover { transform: translateY(-5px); }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #6366f1;
+        }
+        .name { font-weight: bold; font-size: 1.1rem; margin: 5px 0; }
+        .email { color: #65676b; font-size: 0.9rem; }
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>👥 User Dashboard</h1>
+    <p>Data fetched from ReqRes API</p>
+</div>
+
+<div class="user-grid" id="userGrid">
+    <!-- Users will appear here -->
+</div>
+
+<div class="controls">
+    <button id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
+    <span id="pageInfo" style="margin: 0 15px;">Page 1</span>
+    <button id="nextBtn" onclick="changePage(1)">Next</button>
+</div>
+
+<script>
+    let currentPage = 1;
+    const userGrid = document.getElementById('userGrid');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    async function fetchUsers(page) {
+        userGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading users...</p>';
+        try {
+            const response = await axios.get(`https://reqres.in/api/users?page=${page}`);
+            const users = response.data.data;
+            const totalPages = response.data.total_pages;
+
+            renderUsers(users);
+            updateButtons(page, totalPages);
+        } catch (error) {
+            userGrid.innerHTML = '<p style="color: red; grid-column: 1/-1; text-align: center;">Failed to load users.</p>';
+        }
+    }
+
+    function renderUsers(users) {
+        userGrid.innerHTML = users.map(user => `
+            <div class="user-card">
+                <img src="${user.avatar}" alt="${user.first_name}" class="avatar">
+                <div class="name">${user.first_name} ${user.last_name}</div>
+                <div class="email">${user.email}</div>
+            </div>
+        `).join('');
+    }
+
+    function updateButtons(page, totalPages) {
+        currentPage = page;
+        pageInfo.innerText = `Page ${page} of ${totalPages}`;
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = page === totalPages;
+    }
+
+    function changePage(delta) {
+        fetchUsers(currentPage + delta);
+    }
+
+    // Initial load
+    fetchUsers(1);
+</script>
+
+</body>
+</html>
