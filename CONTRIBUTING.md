@@ -39,4 +39,4 @@ To maintain a clean and professional look, **do not use emojis** in the document
 4.  **Submit the PR**: Fill out the Pull Request template completely.
 5.  **Review**: At least one maintainer must review and approve your PR before it is merged.
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+
